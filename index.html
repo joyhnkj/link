@@ -1,0 +1,1623 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Générateur de lien de traitement</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #667085;
+      --line: #e4e7ec;
+      --soft: #f6f8fb;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --peach: #fff0e6;
+      --orange: #f97316;
+      --red-bright: #ff1f1f;
+      --green: #067647;
+      --red: #b42318;
+      --shadow: 0 16px 45px rgba(16, 24, 40, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 100% 0%, #eaf1ff 0, transparent 30rem),
+        #f4f6f9;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+    }
+
+    .app {
+      width: min(1440px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 38px 0 56px;
+    }
+
+    .hero {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--blue);
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 760px;
+      margin-bottom: 10px;
+      font-size: clamp(1.8rem, 4vw, 2.75rem);
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-description {
+      max-width: 760px;
+      margin-bottom: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .local-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex: 0 0 auto;
+      padding: 9px 13px;
+      color: #344054;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(208, 213, 221, 0.9);
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 650;
+    }
+
+    .local-badge::before {
+      width: 8px;
+      height: 8px;
+      content: "";
+      background: #12b76a;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px #d1fadf;
+    }
+
+    .hero-content {
+      min-width: 0;
+    }
+
+    .hero-content > .local-badge {
+      margin-bottom: 12px;
+    }
+
+    .clock-card {
+      align-self: flex-end;
+      flex: 0 0 auto;
+      min-width: 152px;
+      padding: 9px 14px;
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid rgba(208, 213, 221, 0.9);
+      border-radius: 12px;
+      text-align: right;
+    }
+
+    .clock-label {
+      display: block;
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 750;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .clock-value {
+      display: block;
+      margin-top: 2px;
+      color: var(--ink);
+      font-size: 1.35rem;
+      font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      letter-spacing: 0.025em;
+    }
+
+    .import-panel,
+    .table-card {
+      background: #fff;
+      border: 1px solid rgba(208, 213, 221, 0.85);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .import-panel {
+      padding: 22px;
+    }
+
+    .upload-layout {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      width: 100%;
+      margin: 0;
+    }
+
+    .copy-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-height: 44px;
+      padding: 0 17px;
+      color: #fff;
+      background: var(--blue);
+      border-radius: 10px;
+      box-shadow: 0 7px 16px rgba(37, 99, 235, 0.2);
+      cursor: pointer;
+      font-weight: 750;
+      transition: transform 150ms ease, background 150ms ease, box-shadow 150ms ease;
+    }
+
+    .copy-button:hover {
+      background: var(--blue-dark);
+      box-shadow: 0 9px 20px rgba(37, 99, 235, 0.27);
+    }
+
+    .copy-button:active {
+      transform: translateY(1px);
+    }
+
+    .copy-button:focus-visible,
+    .drop-zone:focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.25);
+      outline-offset: 3px;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+      box-shadow: none;
+    }
+
+    .drop-zone,
+    .group-box {
+      width: 100%;
+      min-width: 0;
+      height: 64px;
+      min-height: 64px;
+      border-radius: 13px;
+    }
+
+    .drop-zone {
+      display: flex;
+      align-items: center;
+      padding: 8px 18px;
+      color: #344054;
+      background: #fafbfc;
+      border: 2px dashed #cbd5e1;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.is-dragging {
+      background: #f1f6ff;
+      border-color: var(--blue);
+    }
+
+    .drop-zone.is-dragging {
+      transform: scale(1.005);
+    }
+
+    .drop-content {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-width: 0;
+      gap: 10px;
+    }
+
+    .drop-icon {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 32px;
+      place-items: center;
+      color: var(--blue);
+      background: #eaf1ff;
+      border-radius: 8px;
+    }
+
+    .drop-icon svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .drop-copy {
+      display: grid;
+      min-width: 0;
+      gap: 2px;
+    }
+
+    .drop-copy strong {
+      font-size: 0.88rem;
+    }
+
+    .drop-copy span {
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.25;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .file-types {
+      display: flex;
+      flex: 0 0 auto;
+      gap: 5px;
+      margin: 0 0 0 auto;
+    }
+
+    .file-types span {
+      padding: 2px 7px;
+      color: #344054;
+      background: #fff;
+      border: 1px solid #d0d5dd;
+      border-radius: 999px;
+      font-size: 0.64rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    .group-box {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 11px;
+      padding: 8px 18px;
+      overflow: hidden;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      text-align: left;
+    }
+
+    .group-label {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .group-box strong {
+      flex: 0 0 auto;
+      margin: 0;
+      color: var(--blue-dark);
+      font-size: 1.2rem;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .group-hint {
+      display: none;
+    }
+
+    .file-meta {
+      width: auto;
+      min-width: 0;
+      max-width: 50%;
+      margin: 0 0 0 auto;
+      overflow: hidden;
+      padding: 0;
+      color: var(--muted);
+      border: 0;
+      font-size: 0.72rem;
+      text-align: right;
+    }
+
+    .file-meta span {
+      display: block;
+      max-width: 100%;
+      overflow: hidden;
+      color: #344054;
+      font-weight: 650;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .message {
+      margin: 12px 2px 0;
+      padding: 10px 12px;
+      color: #175cd3;
+      background: #eff8ff;
+      border-radius: 9px;
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+
+    .message[data-type="error"] {
+      color: var(--red);
+      background: #fef3f2;
+    }
+
+    .message[data-type="success"] {
+      color: var(--green);
+      background: #ecfdf3;
+    }
+
+    .message[data-type="warning"] {
+      color: #b54708;
+      background: #fffaeb;
+    }
+
+    .table-card {
+      margin-top: 24px;
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 22px 24px 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .result-details {
+      display: grid;
+      max-width: 980px;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.45;
+    }
+
+    .result-line {
+      margin: 0;
+    }
+
+    .result-count-red {
+      color: var(--red-bright);
+      font-weight: 800;
+    }
+
+    .result-count-orange {
+      color: var(--orange);
+      font-weight: 800;
+    }
+
+    .result-date-breakdown {
+      color: #475467;
+    }
+
+    .table-wrap {
+      max-height: 68vh;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.88rem;
+    }
+
+    th,
+    td {
+      padding: 6px 16px;
+      border-bottom: 1px solid #edf0f3;
+      text-align: center;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      color: #344054;
+      background: #f8fafc;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.025em;
+      text-transform: uppercase;
+    }
+
+    th:first-child,
+    td:first-child {
+      width: 18%;
+    }
+
+    th:nth-child(2),
+    td:nth-child(2) {
+      width: 22%;
+    }
+
+    th:nth-child(3),
+    td:nth-child(3) {
+      width: 27%;
+    }
+
+    th:nth-child(4),
+    td:nth-child(4) {
+      width: 33%;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:hover td {
+      filter: saturate(1.05) brightness(0.99);
+    }
+
+    tbody tr:not(.sla-missing) td {
+      background: #fff;
+    }
+
+    tr.sla-missing td {
+      background: var(--peach);
+    }
+
+    td.past-date {
+      color: #fff;
+      background: var(--orange) !important;
+      font-weight: 750;
+    }
+
+    td.past-white-date {
+      color: #fff;
+      background: var(--red-bright) !important;
+      font-weight: 750;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 700px) {
+      .app {
+        width: min(100% - 20px, 1440px);
+        padding-top: 24px;
+      }
+
+      .hero {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .clock-card {
+        align-self: flex-start;
+        text-align: left;
+      }
+
+      .import-panel {
+        padding: 15px;
+      }
+
+      .upload-layout {
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+
+      .table-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .drop-zone,
+      .group-box {
+        height: 64px;
+        min-height: 64px;
+      }
+
+      .file-meta {
+        text-align: right;
+      }
+
+      .copy-button {
+        width: 100%;
+      }
+
+      .table-toolbar {
+        padding-right: 16px;
+        padding-left: 16px;
+      }
+
+      .table-wrap {
+        max-height: 64vh;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div class="hero-content">
+        <div class="local-badge">Traitement local et privé</div>
+        <h1>Générateur de lien de traitement</h1>
+        <p class="hero-description">Glissez ou importez le fichier brut : le tableau final est généré et trié automatiquement</p>
+      </div>
+      <div class="clock-card" aria-label="Heure locale de l’ordinateur">
+        <span class="clock-label">Heure actuelle</span>
+        <strong class="clock-value" id="currentTime">--:--:--</strong>
+      </div>
+    </header>
+
+    <section class="import-panel" aria-labelledby="import-title">
+      <h2 id="import-title" class="sr-only">Importer le fichier CSV ou ZIP</h2>
+
+      <div class="upload-layout">
+        <input id="fileInput" type="file" accept=".csv,.zip,text/csv,application/zip,application/x-zip-compressed" hidden>
+
+        <button class="drop-zone" id="dropZone" type="button">
+          <span class="drop-content">
+            <span class="drop-icon" aria-hidden="true">
+              <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <path d="M14 2v6h6"></path>
+                <path d="M8 13h8"></path>
+                <path d="M8 17h5"></path>
+              </svg>
+            </span>
+            <span class="drop-copy">
+              <strong>Déposez ou importez un fichier CSV / ZIP</strong>
+              <span>Cliquez pour parcourir vos fichiers · Le premier CSV du ZIP sera utilisé</span>
+            </span>
+            <span class="file-types" aria-label="Formats acceptés"><span>CSV</span><span>ZIP</span></span>
+          </span>
+        </button>
+
+        <div class="group-box">
+          <span class="group-label">Groupe détecté</span>
+          <strong id="groupName">—</strong>
+          <span class="group-hint">Le groupe correspond au premier mot du nom du fichier importé.</span>
+          <div class="file-meta" id="fileMeta" hidden>
+            <span id="fileName"></span>
+            <small id="fileSize"></small>
+          </div>
+        </div>
+      </div>
+
+      <p class="message" id="message" role="status" aria-live="polite" hidden></p>
+    </section>
+
+    <section class="table-card" id="tableCard" aria-label="Tableau final" hidden>
+      <div class="table-toolbar">
+        <div>
+          <p class="eyebrow">Résultat final</p>
+          <div class="result-details" id="resultDetails" aria-live="polite"></div>
+        </div>
+        <button class="copy-button" id="copyButton" type="button">
+          <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+          </svg>
+          <span id="copyButtonText">Copier le tableau</span>
+        </button>
+      </div>
+
+      <div class="table-wrap" tabindex="0" aria-label="Tableau final, défilement horizontal et vertical">
+        <table>
+          <caption class="sr-only">Tableau final : lignes avec SLA, puis lignes sans SLA triées par jour et par transporteur</caption>
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Statut du ticket</th>
+              <th scope="col">Mis à jour</th>
+              <th scope="col">Carrier - PL BO ONLY</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const COLUMN_ALIASES = {
+      id: ["id", "id ticket", "ticket id", "numero de ticket", "numero ticket", "no ticket", "n ticket"],
+      status: ["statut", "statut du ticket", "status", "ticket status", "etat", "etat du ticket"],
+      sla: ["sla", "date sla", "sla date"],
+      created: ["cree", "date de creation", "date creation", "created", "created at", "creation", "date created"],
+      updated: ["mis a jour", "mise a jour", "date maj", "date de creation maj", "date de mise a jour", "derniere mise a jour", "updated", "updated at", "last updated"],
+      carrier: ["carrier pl bo only", "carrier plbo only", "carrier", "transporteur", "nom transporteur", "code transporteur"]
+    };
+
+    const elements = {
+      currentTime: document.getElementById("currentTime"),
+      fileInput: document.getElementById("fileInput"),
+      dropZone: document.getElementById("dropZone"),
+      groupName: document.getElementById("groupName"),
+      fileMeta: document.getElementById("fileMeta"),
+      fileName: document.getElementById("fileName"),
+      fileSize: document.getElementById("fileSize"),
+      message: document.getElementById("message"),
+      tableCard: document.getElementById("tableCard"),
+      resultDetails: document.getElementById("resultDetails"),
+      copyButton: document.getElementById("copyButton"),
+      copyButtonText: document.getElementById("copyButtonText"),
+      tableBody: document.getElementById("tableBody")
+    };
+
+    const state = {
+      group: "",
+      rows: [],
+      warnings: []
+    };
+
+    let dragDepth = 0;
+
+    function normalizeText(value) {
+      return String(value ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[’']/g, "'")
+        .replace(/[^a-zA-Z0-9]+/g, " ")
+        .trim()
+        .toLowerCase();
+    }
+
+    function cleanCell(value) {
+      return String(value ?? "").trim();
+    }
+
+    function getFilenameWords(filename) {
+      const normalized = filename
+        .replace(/\.[^.]+$/, "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLocaleUpperCase("fr-FR")
+        .replace(/[^A-Z0-9]+/g, " ")
+        .trim();
+      return normalized ? normalized.split(/\s+/) : [];
+    }
+
+    function findKnownGroupInFilename(filename) {
+      const words = getFilenameWords(filename);
+      const singleWordGroups = new Set(["SWAT", "DI", "CSPL", "CA", "KYC"]);
+
+      for (let index = 0; index < words.length; index += 1) {
+        const word = words[index];
+        const nextWord = words[index + 1] || "";
+
+        if (word === "ADM" && nextWord === "FR") return "ADM FR";
+        if (word === "ADM" && nextWord === "EN") return "ADM EN";
+        if (word === "CHANGE" && nextWord === "EMAIL") return "CHANGE EMAIL";
+        if (word === "ADMFR") return "ADM FR";
+        if (word === "ADMEN") return "ADM EN";
+        if (word === "CHANGEEMAIL") return "CHANGE EMAIL";
+        if (singleWordGroups.has(word)) return word;
+      }
+
+      return "";
+    }
+
+    function getGroupFromFilename(filename) {
+      return findKnownGroupInFilename(filename) || getFilenameWords(filename)[0] || "SANS GROUPE";
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return `${bytes} o`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
+      return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+    }
+
+    const clockFormatter = new Intl.DateTimeFormat("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hourCycle: "h23"
+    });
+
+    const resultDateFormatter = new Intl.DateTimeFormat("fr-FR", {
+      day: "2-digit",
+      month: "2-digit"
+    });
+
+    function updateClock() {
+      const now = new Date();
+      elements.currentTime.textContent = clockFormatter.format(now);
+      elements.currentTime.title = now.toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "medium" });
+      refreshMisAJourColors();
+    }
+
+    function findEndOfCentralDirectory(bytes, view) {
+      const firstPosition = Math.max(0, bytes.length - 65557);
+      for (let position = bytes.length - 22; position >= firstPosition; position -= 1) {
+        if (view.getUint32(position, true) === 0x06054b50) return position;
+      }
+      return -1;
+    }
+
+    async function inflateZipEntry(compressedData) {
+      if (typeof DecompressionStream === "undefined") {
+        throw new Error("Ce navigateur ne peut pas décompresser les fichiers ZIP. Utilisez un navigateur récent ou importez le CSV directement.");
+      }
+      const stream = new Blob([compressedData]).stream().pipeThrough(
+        new DecompressionStream("deflate-raw")
+      );
+      return new Response(stream).arrayBuffer();
+    }
+
+    async function extractFirstCsvFromZip(file) {
+      const archiveBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(archiveBuffer);
+      const view = new DataView(archiveBuffer);
+      const endOffset = findEndOfCentralDirectory(bytes, view);
+
+      if (endOffset === -1) {
+        throw new Error("Le fichier ZIP est invalide ou endommagé.");
+      }
+
+      const entryCount = view.getUint16(endOffset + 10, true);
+      let centralOffset = view.getUint32(endOffset + 16, true);
+      if (entryCount === 0xffff || centralOffset === 0xffffffff) {
+        throw new Error("Les archives ZIP au format ZIP64 ne sont pas prises en charge.");
+      }
+
+      for (let entryIndex = 0; entryIndex < entryCount; entryIndex += 1) {
+        if (view.getUint32(centralOffset, true) !== 0x02014b50) {
+          throw new Error("La structure du fichier ZIP est invalide.");
+        }
+
+        const flags = view.getUint16(centralOffset + 8, true);
+        const compressionMethod = view.getUint16(centralOffset + 10, true);
+        const compressedSize = view.getUint32(centralOffset + 20, true);
+        const uncompressedSize = view.getUint32(centralOffset + 24, true);
+        const filenameLength = view.getUint16(centralOffset + 28, true);
+        const extraLength = view.getUint16(centralOffset + 30, true);
+        const entryCommentLength = view.getUint16(centralOffset + 32, true);
+        const localHeaderOffset = view.getUint32(centralOffset + 42, true);
+        const filenameBytes = bytes.subarray(
+          centralOffset + 46,
+          centralOffset + 46 + filenameLength
+        );
+        const filename = new TextDecoder("utf-8").decode(filenameBytes).replace(/\\/g, "/");
+        const normalizedFilename = filename.toLocaleLowerCase("fr-FR");
+        const isCsv = normalizedFilename.endsWith(".csv") && !filename.endsWith("/");
+        const isSystemFile = filename.startsWith("__MACOSX/") || filename.endsWith("/.DS_Store");
+
+        if (isCsv && !isSystemFile) {
+          if (flags & 0x0001) {
+            throw new Error("Le fichier CSV dans le ZIP est chiffré et ne peut pas être lu.");
+          }
+          if (compressedSize === 0xffffffff || uncompressedSize === 0xffffffff || localHeaderOffset === 0xffffffff) {
+            throw new Error("Ce fichier ZIP utilise un format non pris en charge.");
+          }
+          if (uncompressedSize > 100 * 1024 * 1024) {
+            throw new Error("Le fichier CSV extrait du ZIP dépasse la limite de 100 Mo.");
+          }
+          if (view.getUint32(localHeaderOffset, true) !== 0x04034b50) {
+            throw new Error("Impossible de lire le fichier CSV dans le ZIP.");
+          }
+
+          const localFilenameLength = view.getUint16(localHeaderOffset + 26, true);
+          const localExtraLength = view.getUint16(localHeaderOffset + 28, true);
+          const dataOffset = localHeaderOffset + 30 + localFilenameLength + localExtraLength;
+          const compressedData = bytes.subarray(dataOffset, dataOffset + compressedSize);
+          let csvBuffer;
+
+          if (compressionMethod === 0) {
+            csvBuffer = compressedData.slice().buffer;
+          } else if (compressionMethod === 8) {
+            csvBuffer = await inflateZipEntry(compressedData);
+          } else {
+            throw new Error("La méthode de compression du ZIP n’est pas prise en charge.");
+          }
+
+          return {
+            buffer: csvBuffer,
+            filename: filename.split("/").pop() || "export.csv"
+          };
+        }
+
+        centralOffset += 46 + filenameLength + extraLength + entryCommentLength;
+      }
+
+      throw new Error("Aucun fichier CSV n’a été trouvé dans l’archive ZIP.");
+    }
+
+    function decodeCsvFile(buffer) {
+      const bytes = new Uint8Array(buffer);
+      if (bytes.length >= 2 && bytes[0] === 0xff && bytes[1] === 0xfe) {
+        return new TextDecoder("utf-16le").decode(buffer);
+      }
+      if (bytes.length >= 2 && bytes[0] === 0xfe && bytes[1] === 0xff) {
+        return new TextDecoder("utf-16be").decode(buffer);
+      }
+
+      const utf8Text = new TextDecoder("utf-8").decode(buffer);
+      const sampleLength = Math.min(utf8Text.length, 500);
+      let nullCharacters = 0;
+      for (let index = 0; index < sampleLength; index += 1) {
+        if (utf8Text.charCodeAt(index) === 0) nullCharacters += 1;
+      }
+      if (sampleLength > 0 && nullCharacters / sampleLength > 0.2) {
+        return utf8Text;
+      }
+      return utf8Text;
+    }
+
+    function countDelimiter(line, delimiter) {
+      let count = 0;
+      let inQuotes = false;
+
+      for (let index = 0; index < line.length; index += 1) {
+        const character = line[index];
+        if (character === '"') {
+          if (inQuotes && line[index + 1] === '"') {
+            index += 1;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (!inQuotes && character === delimiter) {
+          count += 1;
+        }
+      }
+      return count;
+    }
+
+    function detectDelimiter(text) {
+      const firstLine = text.replace(/^\uFEFF/, "").split(/\r?\n/, 1)[0] || "";
+      const delimiters = [";", ",", "\t", "|"];
+      return delimiters
+        .map((delimiter, index) => ({
+          delimiter,
+          index,
+          count: countDelimiter(firstLine, delimiter)
+        }))
+        .sort((left, right) => right.count - left.count || left.index - right.index)[0]
+        .delimiter;
+    }
+
+    function parseCsv(text, delimiter) {
+      const input = text.replace(/^\uFEFF/, "");
+      const rows = [];
+      let row = [];
+      let field = "";
+      let inQuotes = false;
+
+      for (let index = 0; index < input.length; index += 1) {
+        const character = input[index];
+
+        if (inQuotes) {
+          if (character === '"') {
+            if (input[index + 1] === '"') {
+              field += '"';
+              index += 1;
+            } else {
+              inQuotes = false;
+            }
+          } else {
+            field += character;
+          }
+          continue;
+        }
+
+        if (character === '"' && field.length === 0) {
+          inQuotes = true;
+        } else if (character === delimiter) {
+          row.push(field);
+          field = "";
+        } else if (character === "\n" || character === "\r") {
+          if (character === "\r" && input[index + 1] === "\n") index += 1;
+          row.push(field);
+          if (row.some((cell) => cleanCell(cell) !== "")) rows.push(row);
+          row = [];
+          field = "";
+        } else {
+          field += character;
+        }
+      }
+
+      if (inQuotes) {
+        throw new Error("Le fichier contient un guillemet CSV non fermé.");
+      }
+
+      row.push(field);
+      if (row.some((cell) => cleanCell(cell) !== "")) rows.push(row);
+      return rows;
+    }
+
+    function findColumnIndex(headers, aliases) {
+      for (const alias of aliases) {
+        const exactIndex = headers.indexOf(alias);
+        if (exactIndex !== -1) return exactIndex;
+      }
+      for (const alias of aliases) {
+        const partialIndex = headers.findIndex((header) => header.startsWith(alias));
+        if (partialIndex !== -1) return partialIndex;
+      }
+      return -1;
+    }
+
+    function getColumnIndexes(headers) {
+      const indexes = {};
+      for (const [key, aliases] of Object.entries(COLUMN_ALIASES)) {
+        indexes[key] = findColumnIndex(headers, aliases);
+      }
+      return indexes;
+    }
+
+    function locateHeaderRow(rows) {
+      const limit = Math.min(rows.length, 10);
+      let best = null;
+
+      for (let rowIndex = 0; rowIndex < limit; rowIndex += 1) {
+        const headers = rows[rowIndex].map(normalizeText);
+        const indexes = getColumnIndexes(headers);
+        const score = Object.values(indexes).filter((index) => index !== -1).length;
+        if (!best || score > best.score) best = { rowIndex, indexes, score };
+      }
+
+      return best;
+    }
+
+    function parseDate(value) {
+      const input = cleanCell(value);
+      if (!input) return null;
+
+      let year;
+      let month;
+      let day;
+      let hour = 0;
+      let minute = 0;
+      let second = 0;
+
+      const isoMatch = input.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+      const frenchMatch = input.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+
+      if (isoMatch) {
+        year = Number(isoMatch[1]);
+        month = Number(isoMatch[2]);
+        day = Number(isoMatch[3]);
+        hour = Number(isoMatch[4] || 0);
+        minute = Number(isoMatch[5] || 0);
+        second = Number(isoMatch[6] || 0);
+      } else if (frenchMatch) {
+        day = Number(frenchMatch[1]);
+        month = Number(frenchMatch[2]);
+        year = Number(frenchMatch[3]);
+        hour = Number(frenchMatch[4] || 0);
+        minute = Number(frenchMatch[5] || 0);
+        second = Number(frenchMatch[6] || 0);
+      } else {
+        return null;
+      }
+
+      if (month < 1 || month > 12 || day < 1 || hour > 23 || minute > 59 || second > 59) {
+        return null;
+      }
+      const date = new Date(year, month - 1, day, hour, minute, second, 0);
+      if (
+        date.getFullYear() !== year ||
+        date.getMonth() !== month - 1 ||
+        date.getDate() !== day
+      ) {
+        return null;
+      }
+      return date;
+    }
+
+    function subtractOneDay(date) {
+      const result = new Date(date.getTime());
+      result.setDate(result.getDate() - 1);
+      return result;
+    }
+
+    function formatDate(date) {
+      if (!date) return "";
+      const day = String(date.getDate()).padStart(2, "0");
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const hour = String(date.getHours()).padStart(2, "0");
+      const minute = String(date.getMinutes()).padStart(2, "0");
+      return `${day}/${month}/${date.getFullYear()} ${hour}:${minute}`;
+    }
+
+    function getTodayStart() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return today.getTime();
+    }
+
+    function isPastDate(timestamp) {
+      return timestamp > 0 && timestamp < getTodayStart();
+    }
+
+    function getMisAJourColorClass(item, nowTimestamp = Date.now(), todayStart = getTodayStart()) {
+      const isPreviousOrOlder = item.finalTimestamp > 0 && item.finalTimestamp < todayStart;
+      if (!isPreviousOrOlder) return "";
+
+      const previousDaySameTime = new Date(nowTimestamp);
+      previousDaySameTime.setDate(previousDaySameTime.getDate() - 1);
+      const redThreshold = previousDaySameTime.getTime();
+
+      if (!item.missingSla && item.finalTimestamp < redThreshold) {
+        return "past-white-date";
+      }
+      return "past-date";
+    }
+
+    function getCalendarDayTimestamp(timestamp) {
+      if (!Number.isFinite(timestamp) || timestamp >= Number.MAX_SAFE_INTEGER) {
+        return Number.MAX_SAFE_INTEGER;
+      }
+      const date = new Date(timestamp);
+      date.setHours(0, 0, 0, 0);
+      return date.getTime();
+    }
+
+    function processCsv(text) {
+      const delimiter = detectDelimiter(text);
+      const allRows = parseCsv(text, delimiter);
+      const headerInfo = locateHeaderRow(allRows);
+
+      if (!headerInfo || headerInfo.score < 4) {
+        throw new Error("Impossible d’identifier la ligne d’en-tête du CSV.");
+      }
+
+      const { indexes, rowIndex: headerRowIndex } = headerInfo;
+      const requiredColumns = ["id", "status", "sla", "created", "updated"];
+      const missingColumns = requiredColumns.filter((key) => indexes[key] === -1);
+      if (missingColumns.length > 0) {
+        const labels = {
+          id: "ID",
+          status: "Statut du ticket",
+          sla: "SLA",
+          created: "Créé",
+          updated: "Mis à jour",
+          carrier: "Carrier - PL BO ONLY"
+        };
+        const names = missingColumns.map((key) => labels[key]).join(", ");
+        throw new Error(`Colonne(s) introuvable(s) dans le fichier : ${names}.`);
+      }
+
+      const warnings = [];
+      const rows = [];
+
+      for (let sourceIndex = headerRowIndex + 1; sourceIndex < allRows.length; sourceIndex += 1) {
+        const sourceRow = allRows[sourceIndex];
+        const id = cleanCell(sourceRow[indexes.id]);
+        if (!id) continue;
+
+        const status = cleanCell(sourceRow[indexes.status]);
+        const slaRaw = cleanCell(sourceRow[indexes.sla]);
+        const createdRaw = cleanCell(sourceRow[indexes.created]);
+        const updatedRaw = cleanCell(sourceRow[indexes.updated]);
+        const carrier = indexes.carrier === -1
+          ? ""
+          : cleanCell(sourceRow[indexes.carrier]);
+        const missingSla = slaRaw === "";
+        const slaDate = missingSla ? null : parseDate(slaRaw);
+        const isNewTicket = normalizeText(status) === "nouveau";
+
+        let finalDateValue;
+        let finalTimestamp = Number.MAX_SAFE_INTEGER;
+
+        if (!missingSla) {
+          if (!slaDate) {
+            warnings.push(`Date SLA illisible à la ligne ${sourceIndex + 1}.`);
+            finalDateValue = updatedRaw;
+          } else {
+            const calculatedDate = subtractOneDay(slaDate);
+            finalDateValue = formatDate(calculatedDate);
+            finalTimestamp = calculatedDate.getTime();
+          }
+        } else if (isNewTicket) {
+          const createdDate = parseDate(createdRaw);
+          finalDateValue = createdDate ? formatDate(createdDate) : createdRaw;
+          if (createdDate) finalTimestamp = createdDate.getTime();
+        } else {
+          const updatedDate = parseDate(updatedRaw);
+          finalDateValue = updatedDate ? formatDate(updatedDate) : updatedRaw;
+          if (updatedDate) finalTimestamp = updatedDate.getTime();
+        }
+
+        if (finalTimestamp === Number.MAX_SAFE_INTEGER && finalDateValue) {
+          warnings.push(`Date finale illisible à la ligne ${sourceIndex + 1}.`);
+        }
+
+        rows.push({
+          id,
+          status,
+          updated: finalDateValue,
+          carrier,
+          missingSla,
+          finalTimestamp
+        });
+      }
+
+      rows.sort((left, right) => {
+        if (left.missingSla !== right.missingSla) {
+          return left.missingSla ? 1 : -1;
+        }
+
+        if (!left.missingSla) {
+          return left.finalTimestamp - right.finalTimestamp;
+        }
+
+        const dayComparison =
+          getCalendarDayTimestamp(left.finalTimestamp) -
+          getCalendarDayTimestamp(right.finalTimestamp);
+        if (dayComparison !== 0) return dayComparison;
+
+        const carrierComparison = left.carrier.localeCompare(right.carrier, "fr", {
+          sensitivity: "base",
+          numeric: true
+        });
+        if (carrierComparison !== 0) return carrierComparison;
+
+        const timeComparison = left.finalTimestamp - right.finalTimestamp;
+        if (timeComparison !== 0) return timeComparison;
+        return left.id.localeCompare(right.id, "fr", { numeric: true });
+      });
+
+      return { rows, warnings };
+    }
+
+    function showMessage(text, type = "info") {
+      elements.message.textContent = text;
+      elements.message.dataset.type = type;
+      elements.message.hidden = false;
+    }
+
+    function setBusy(isBusy) {
+      elements.dropZone.disabled = isBusy;
+      elements.fileInput.disabled = isBusy;
+      elements.dropZone.setAttribute("aria-busy", String(isBusy));
+    }
+
+    function appendCell(row, value, className) {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      if (className) cell.className = className;
+      row.appendChild(cell);
+      return cell;
+    }
+
+    function createResultCount(count, className) {
+      const value = document.createElement("span");
+      value.className = className;
+      value.textContent = String(count);
+      return value;
+    }
+
+    function renderResultDetails(nowTimestamp = Date.now(), todayStart = getTodayStart()) {
+      let redCount = 0;
+      const orangeDates = new Map();
+
+      for (const item of state.rows) {
+        const colorClass = getMisAJourColorClass(item, nowTimestamp, todayStart);
+        if (colorClass === "past-white-date") {
+          redCount += 1;
+        } else if (colorClass === "past-date") {
+          const dayTimestamp = getCalendarDayTimestamp(item.finalTimestamp);
+          orangeDates.set(dayTimestamp, (orangeDates.get(dayTimestamp) || 0) + 1);
+        }
+      }
+
+      const orangeDateEntries = [...orangeDates.entries()]
+        .sort(([leftDay], [rightDay]) => leftDay - rightDay)
+        .map(([dayTimestamp, count]) => ({
+          date: resultDateFormatter.format(new Date(dayTimestamp)),
+          count
+        }));
+      const fragment = document.createDocumentFragment();
+
+      const redLine = document.createElement("p");
+      redLine.className = "result-line";
+      redLine.append(createResultCount(redCount, "result-count-red"));
+      redLine.append(` ${redCount === 1 ? "ticket hors SLA" : "tickets hors SLA"}`);
+      fragment.appendChild(redLine);
+
+      const orangeLine = document.createElement("p");
+      orangeLine.className = "result-line result-date-breakdown";
+      if (orangeDateEntries.length > 0) {
+        orangeDateEntries.forEach((entry, index) => {
+          if (index > 0) orangeLine.append(" et ");
+          orangeLine.append(createResultCount(entry.count, "result-count-orange"));
+          orangeLine.append(
+            ` ${entry.count === 1 ? "ticket datant" : "tickets datant"} du ${entry.date}`
+          );
+        });
+      } else {
+        orangeLine.append(createResultCount(0, "result-count-orange"));
+        orangeLine.append(" ticket en orange");
+      }
+      fragment.appendChild(orangeLine);
+
+      elements.resultDetails.replaceChildren(fragment);
+    }
+
+    function renderTable() {
+      elements.tableBody.replaceChildren();
+      const nowTimestamp = Date.now();
+      const todayStart = getTodayStart();
+      const fragment = document.createDocumentFragment();
+
+      for (const item of state.rows) {
+        const row = document.createElement("tr");
+        if (item.missingSla) row.className = "sla-missing";
+
+        appendCell(row, item.id);
+        appendCell(row, item.status);
+        appendCell(
+          row,
+          item.updated,
+          getMisAJourColorClass(item, nowTimestamp, todayStart)
+        );
+        appendCell(row, item.carrier);
+        fragment.appendChild(row);
+      }
+
+      elements.tableBody.appendChild(fragment);
+      renderResultDetails(nowTimestamp, todayStart);
+    }
+
+    function refreshMisAJourColors() {
+      const renderedRows = elements.tableBody.children;
+      if (renderedRows.length === 0) return;
+      const nowTimestamp = Date.now();
+      const todayStart = getTodayStart();
+      let colorsChanged = false;
+
+      for (let index = 0; index < state.rows.length; index += 1) {
+        const dateCell = renderedRows[index]?.children[2];
+        if (dateCell) {
+          const nextClass = getMisAJourColorClass(
+            state.rows[index],
+            nowTimestamp,
+            todayStart
+          );
+          if (dateCell.className !== nextClass) {
+            dateCell.className = nextClass;
+            colorsChanged = true;
+          }
+        }
+      }
+
+      if (colorsChanged) renderResultDetails(nowTimestamp, todayStart);
+    }
+
+    async function handleFile(file) {
+      if (!file) return;
+      const lowercaseName = file.name.toLowerCase();
+      const isCsv = lowercaseName.endsWith(".csv");
+      const isZip = lowercaseName.endsWith(".zip");
+      if (!isCsv && !isZip) {
+        showMessage("Veuillez sélectionner un fichier au format .csv ou .zip.", "error");
+        return;
+      }
+
+      setBusy(true);
+      try {
+        let sourceFile = file;
+        let extractedFilename = "";
+
+        if (isZip) {
+          const extracted = await extractFirstCsvFromZip(file);
+          extractedFilename = extracted.filename;
+          sourceFile = new File([extracted.buffer], extracted.filename, { type: "text/csv" });
+        }
+
+        const text = decodeCsvFile(await sourceFile.arrayBuffer());
+        const result = processCsv(text);
+        if (result.rows.length === 0) {
+          throw new Error("Le fichier ne contient aucune ligne de ticket exploitable.");
+        }
+
+        const uploadedGroup = findKnownGroupInFilename(file.name);
+        const sourceGroup = sourceFile === file
+          ? ""
+          : findKnownGroupInFilename(sourceFile.name);
+        state.group = uploadedGroup || sourceGroup || getGroupFromFilename(sourceFile.name);
+        state.rows = result.rows;
+        state.warnings = result.warnings;
+
+        elements.groupName.textContent = state.group;
+        elements.fileName.textContent = file.name;
+        elements.fileName.title = extractedFilename
+          ? `${file.name} → ${extractedFilename}`
+          : file.name;
+        elements.fileSize.textContent = extractedFilename
+          ? `Archive : ${formatFileSize(file.size)} · CSV interne : ${formatFileSize(sourceFile.size)}`
+          : formatFileSize(file.size);
+        elements.fileMeta.hidden = false;
+        elements.copyButton.disabled = false;
+        elements.tableCard.hidden = false;
+
+        renderTable();
+
+        const sourceMessage = extractedFilename ? ` depuis le CSV « ${extractedFilename} »` : "";
+        if (state.warnings.length > 0) {
+          const preview = state.warnings.slice(0, 3).join(" ");
+          const suffix = state.warnings.length > 3
+            ? ` ${state.warnings.length - 3} autre(s) avertissement(s).`
+            : "";
+          showMessage(
+            `${result.rows.length} ticket(s) importé(s)${sourceMessage}. Attention : ${preview}${suffix}`,
+            "warning"
+          );
+        } else {
+          showMessage(
+            `${result.rows.length} ticket(s) importé(s) et traité(s)${sourceMessage}.`,
+            "success"
+          );
+        }
+
+        elements.tableCard.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {
+        console.error(error);
+        showMessage(error instanceof Error ? error.message : "Une erreur est survenue pendant la lecture du fichier.", "error");
+      } finally {
+        elements.fileInput.value = "";
+        setBusy(false);
+      }
+    }
+
+    function shouldIncludeCarrierInCopy() {
+      return state.rows.some((item) => cleanCell(item.carrier) !== "");
+    }
+
+    function rowsToClipboardText() {
+      const lines = [];
+      const includeCarrier = shouldIncludeCarrierInCopy();
+      for (const item of state.rows) {
+        const values = includeCarrier
+          ? [item.id, item.status, item.updated, item.carrier]
+          : [item.id, item.status, item.updated];
+        const safeValues = values.map((value) =>
+          String(value).replace(/[\t\r\n]+/g, " ").trimEnd()
+        );
+        lines.push(safeValues);
+      }
+      return lines.map((line) => line.join("\t")).join("\r\n");
+    }
+
+    function createClipboardTable() {
+      const includeCarrier = shouldIncludeCarrierInCopy();
+      const table = document.createElement("table");
+      table.setAttribute("style", "width:100%;border-collapse:collapse;table-layout:fixed;font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#172033;background-color:#ffffff;");
+      table.setAttribute("cellpadding", "0");
+      table.setAttribute("cellspacing", "0");
+
+      const columnGroup = document.createElement("colgroup");
+      const columnWidths = includeCarrier
+        ? ["18%", "22%", "27%", "33%"]
+        : ["22%", "28%", "50%"];
+      for (const width of columnWidths) {
+        const column = document.createElement("col");
+        column.setAttribute("style", `width:${width};`);
+        columnGroup.appendChild(column);
+      }
+      table.appendChild(columnGroup);
+
+      const body = document.createElement("tbody");
+      const nowTimestamp = Date.now();
+      const todayStart = getTodayStart();
+      for (const item of state.rows) {
+        const row = document.createElement("tr");
+        const values = includeCarrier
+          ? [item.id, item.status, item.updated, item.carrier]
+          : [item.id, item.status, item.updated];
+
+        values.forEach((value, columnIndex) => {
+          const cell = document.createElement("td");
+          const dateColorClass = columnIndex === 2
+            ? getMisAJourColorClass(item, nowTimestamp, todayStart)
+            : "";
+          const isRedDate = dateColorClass === "past-white-date";
+          const isOrangeDate = dateColorClass === "past-date";
+          const backgroundColor = isRedDate
+            ? "#ff1f1f"
+            : isOrangeDate
+              ? "#f97316"
+              : item.missingSla
+                ? "#fff0e6"
+                : "#ffffff";
+          const textColor = isRedDate || isOrangeDate ? "#ffffff" : "#172033";
+          const fontWeight = isRedDate || isOrangeDate ? "700" : "400";
+
+          cell.textContent = value;
+          cell.setAttribute(
+            "style",
+            `border:0;padding:6px 12px;background-color:${backgroundColor};color:${textColor};text-align:center;vertical-align:middle;white-space:nowrap;font-weight:${fontWeight};`
+          );
+          row.appendChild(cell);
+        });
+
+        body.appendChild(row);
+      }
+      table.appendChild(body);
+      return table;
+    }
+
+    function serializeClipboardTable(table) {
+      return `<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background-color:#ffffff;">${table.outerHTML}</body></html>`;
+    }
+
+    function fallbackCopy(table, text) {
+      const container = document.createElement("div");
+      container.setAttribute("aria-hidden", "true");
+      container.style.position = "fixed";
+      container.style.left = "-10000px";
+      container.style.top = "0";
+      container.style.width = "1200px";
+      container.appendChild(table);
+      document.body.appendChild(container);
+
+      const selection = window.getSelection();
+      const previousRange = selection && selection.rangeCount > 0
+        ? selection.getRangeAt(0).cloneRange()
+        : null;
+      const range = document.createRange();
+      let formattedDataWritten = false;
+
+      if (selection) {
+        selection.removeAllRanges();
+        range.selectNodeContents(container);
+        selection.addRange(range);
+      }
+
+      const handleCopy = (event) => {
+        if (!event.clipboardData) return;
+        event.clipboardData.setData("text/html", serializeClipboardTable(table));
+        event.clipboardData.setData("text/plain", text);
+        event.preventDefault();
+        formattedDataWritten = true;
+      };
+
+      document.addEventListener("copy", handleCopy, { once: true });
+      let commandSucceeded = false;
+      try {
+        commandSucceeded = document.execCommand("copy");
+      } finally {
+        document.removeEventListener("copy", handleCopy);
+        container.remove();
+        if (selection) {
+          selection.removeAllRanges();
+          if (previousRange) selection.addRange(previousRange);
+        }
+      }
+
+      if (!commandSucceeded && !formattedDataWritten) {
+        throw new Error("La copie automatique n’est pas disponible dans ce navigateur.");
+      }
+    }
+
+    async function copyTable() {
+      if (state.rows.length === 0) return;
+      const text = rowsToClipboardText();
+      const table = createClipboardTable();
+      const html = serializeClipboardTable(table);
+
+      try {
+        if (
+          navigator.clipboard &&
+          navigator.clipboard.write &&
+          window.ClipboardItem &&
+          window.isSecureContext
+        ) {
+          try {
+            const clipboardItem = new ClipboardItem({
+              "text/html": new Blob([html], { type: "text/html" }),
+              "text/plain": new Blob([text], { type: "text/plain" })
+            });
+            await navigator.clipboard.write([clipboardItem]);
+          } catch {
+            fallbackCopy(table, text);
+          }
+        } else {
+          fallbackCopy(table, text);
+        }
+        elements.copyButtonText.textContent = "Copié avec couleurs !";
+        showMessage("Le tableau, ses couleurs et sa mise en forme ont été copiés. Vous pouvez les coller dans Excel.", "success");
+        window.setTimeout(() => {
+          elements.copyButtonText.textContent = "Copier le tableau";
+        }, 2200);
+      } catch (error) {
+        console.error(error);
+        showMessage(
+          error instanceof Error ? error.message : "Impossible de copier le tableau.",
+          "error"
+        );
+      }
+    }
+
+    updateClock();
+    window.setInterval(updateClock, 1000);
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) updateClock();
+    });
+
+    elements.dropZone.addEventListener("click", () => elements.fileInput.click());
+    elements.copyButton.addEventListener("click", copyTable);
+
+    elements.fileInput.addEventListener("change", (event) => {
+      const [file] = event.target.files;
+      handleFile(file);
+    });
+
+    for (const eventName of ["dragenter", "dragover"]) {
+      elements.dropZone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        if (eventName === "dragenter") dragDepth += 1;
+        elements.dropZone.classList.add("is-dragging");
+      });
+    }
+
+    elements.dropZone.addEventListener("dragleave", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      dragDepth = Math.max(0, dragDepth - 1);
+      if (dragDepth === 0) elements.dropZone.classList.remove("is-dragging");
+    });
+
+    elements.dropZone.addEventListener("drop", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      dragDepth = 0;
+      elements.dropZone.classList.remove("is-dragging");
+      const files = event.dataTransfer && event.dataTransfer.files;
+      if (files && files.length > 0) handleFile(files[0]);
+    });
+
+    window.addEventListener("dragover", (event) => event.preventDefault());
+    window.addEventListener("drop", (event) => event.preventDefault());
+  </script>
+</body>
+</html>
