@@ -122,8 +122,14 @@
       margin-bottom: 12px;
     }
 
-    .clock-card {
+    .clock-zones {
+      display: flex;
       align-self: flex-end;
+      flex: 0 0 auto;
+      gap: 10px;
+    }
+
+    .clock-card {
       flex: 0 0 auto;
       min-width: 152px;
       padding: 9px 14px;
@@ -131,6 +137,11 @@
       border: 1px solid rgba(208, 213, 221, 0.9);
       border-radius: 12px;
       text-align: right;
+    }
+
+    .clock-card-mdg {
+      min-width: 300px;
+      padding: 12px 20px;
     }
 
     .clock-label {
@@ -150,6 +161,16 @@
       font-variant-numeric: tabular-nums;
       font-weight: 800;
       letter-spacing: 0.025em;
+    }
+
+    .clock-value-fr {
+      color: #667085;
+    }
+
+    .clock-value-mdg {
+      color: #12b76a;
+      font-size: 3.7rem;
+      letter-spacing: -0.02em;
     }
 
     .import-panel,
@@ -527,8 +548,16 @@
         flex-direction: column;
       }
 
-      .clock-card {
+      .clock-zones {
         align-self: flex-start;
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .clock-card {
+        flex: 0 0 auto;
+        width: 100%;
+        min-width: 0;
         text-align: left;
       }
 
@@ -588,9 +617,15 @@
         <h1>Générateur de lien de traitement</h1>
         <p class="hero-description">Glissez ou importez le fichier brut : le tableau final est généré et trié automatiquement</p>
       </div>
-      <div class="clock-card" aria-label="Heure locale de l’ordinateur">
-        <span class="clock-label">Heure actuelle</span>
-        <strong class="clock-value" id="currentTime">--:--:--</strong>
+      <div class="clock-zones">
+        <div class="clock-card clock-card-mdg" aria-label="Heure actuelle à Madagascar">
+          <span class="clock-label">Heure actuelle MDG</span>
+          <strong class="clock-value clock-value-mdg" id="currentTimeMdg">--:--:--</strong>
+        </div>
+        <div class="clock-card clock-card-fr" aria-label="Heure actuelle en France">
+          <span class="clock-label">Heure actuelle FR</span>
+          <strong class="clock-value clock-value-fr" id="currentTimeFr">--:--</strong>
+        </div>
       </div>
     </header>
 
@@ -635,7 +670,7 @@
     <section class="table-card" id="tableCard" aria-label="Tableau final" hidden>
       <div class="table-toolbar">
         <div>
-          <p class="eyebrow">Résultat final</p>
+          <p class="eyebrow" id="resultHeading">Résultat final</p>
           <div class="result-details" id="resultDetails" aria-live="polite"></div>
         </div>
         <button class="copy-button" id="copyButton" type="button">
@@ -677,7 +712,8 @@
     };
 
     const elements = {
-      currentTime: document.getElementById("currentTime"),
+      currentTimeMdg: document.getElementById("currentTimeMdg"),
+      currentTimeFr: document.getElementById("currentTimeFr"),
       fileInput: document.getElementById("fileInput"),
       dropZone: document.getElementById("dropZone"),
       groupName: document.getElementById("groupName"),
@@ -686,6 +722,7 @@
       fileSize: document.getElementById("fileSize"),
       message: document.getElementById("message"),
       tableCard: document.getElementById("tableCard"),
+      resultHeading: document.getElementById("resultHeading"),
       resultDetails: document.getElementById("resultDetails"),
       copyButton: document.getElementById("copyButton"),
       copyButtonText: document.getElementById("copyButtonText"),
@@ -755,7 +792,13 @@
       return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
     }
 
-    const clockFormatter = new Intl.DateTimeFormat("fr-FR", {
+    const frClockFormatter = new Intl.DateTimeFormat("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    });
+
+    const mdgClockFormatter = new Intl.DateTimeFormat("fr-FR", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
@@ -769,8 +812,17 @@
 
     function updateClock() {
       const now = new Date();
-      elements.currentTime.textContent = clockFormatter.format(now);
-      elements.currentTime.title = now.toLocaleString("fr-FR", { dateStyle: "long", timeStyle: "medium" });
+      const mdgTime = new Date(now.getTime() + 60 * 60 * 1000);
+      elements.currentTimeFr.textContent = frClockFormatter.format(now);
+      elements.currentTimeMdg.textContent = mdgClockFormatter.format(mdgTime);
+      elements.currentTimeFr.title = now.toLocaleString("fr-FR", {
+        dateStyle: "long",
+        timeStyle: "medium"
+      });
+      elements.currentTimeMdg.title = mdgTime.toLocaleString("fr-FR", {
+        dateStyle: "long",
+        timeStyle: "medium"
+      });
       refreshMisAJourColors();
     }
 
@@ -1380,22 +1432,12 @@
         elements.tableCard.hidden = false;
 
         renderTable();
-
-        const sourceMessage = extractedFilename ? ` depuis le CSV « ${extractedFilename} »` : "";
+        elements.resultHeading.textContent =
+          `${result.rows.length} tickets importés et traités depuis le CSV « ${sourceFile.name} »`;
+        elements.message.textContent = "";
+        elements.message.hidden = true;
         if (state.warnings.length > 0) {
-          const preview = state.warnings.slice(0, 3).join(" ");
-          const suffix = state.warnings.length > 3
-            ? ` ${state.warnings.length - 3} autre(s) avertissement(s).`
-            : "";
-          showMessage(
-            `${result.rows.length} ticket(s) importé(s)${sourceMessage}. Attention : ${preview}${suffix}`,
-            "warning"
-          );
-        } else {
-          showMessage(
-            `${result.rows.length} ticket(s) importé(s) et traité(s)${sourceMessage}.`,
-            "success"
-          );
+          console.warn(state.warnings.join(" "));
         }
 
         elements.tableCard.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1564,7 +1606,10 @@
           fallbackCopy(table, text);
         }
         elements.copyButtonText.textContent = "Copié avec couleurs !";
-        showMessage("Le tableau, ses couleurs et sa mise en forme ont été copiés. Vous pouvez les coller dans Excel.", "success");
+        elements.resultHeading.textContent =
+          "Le tableau, ses couleurs et sa mise en forme ont été copiés. Vous pouvez les coller dans Excel.";
+        elements.message.textContent = "";
+        elements.message.hidden = true;
         window.setTimeout(() => {
           elements.copyButtonText.textContent = "Copier le tableau";
         }, 2200);
