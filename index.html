@@ -834,6 +834,87 @@
       return -1;
     }
 
+    function readZipUint64(view, offset, label) {
+      let value;
+      if (typeof view.getBigUint64 === "function") {
+        const bigValue = view.getBigUint64(offset, true);
+        if (bigValue > BigInt(Number.MAX_SAFE_INTEGER)) {
+          throw new Error(`${label} est trop volumineux pour être lu.`);
+        }
+        value = Number(bigValue);
+      } else {
+        const low = view.getUint32(offset, true);
+        const high = view.getUint32(offset + 4, true);
+        if (high > 0x1fffff) {
+          throw new Error(`${label} est trop volumineux pour être lu.`);
+        }
+        value = high * 0x100000000 + low;
+      }
+      return value;
+    }
+
+    function readZip64ExtraValues(view, extraOffset, extraLength, neededValues) {
+      const extraEnd = extraOffset + extraLength;
+      let position = extraOffset;
+
+      while (position + 4 <= extraEnd) {
+        const headerId = view.getUint16(position, true);
+        const dataSize = view.getUint16(position + 2, true);
+        const dataStart = position + 4;
+        const dataEnd = dataStart + dataSize;
+
+        if (dataEnd > extraEnd) break;
+
+        if (headerId === 0x0001) {
+          const values = {};
+          let cursor = dataStart;
+
+          if (neededValues.uncompressedSize) {
+            if (cursor + 8 > dataEnd) break;
+            values.uncompressedSize = readZipUint64(view, cursor, "La taille du fichier CSV");
+            cursor += 8;
+          }
+          if (neededValues.compressedSize) {
+            if (cursor + 8 > dataEnd) break;
+            values.compressedSize = readZipUint64(view, cursor, "La taille compressée du fichier CSV");
+            cursor += 8;
+          }
+          if (neededValues.localHeaderOffset) {
+            if (cursor + 8 > dataEnd) break;
+            values.localHeaderOffset = readZipUint64(view, cursor, "La position du fichier CSV dans le ZIP");
+          }
+          return values;
+        }
+
+        position = dataEnd;
+      }
+
+      return {};
+    }
+
+    function findZipCentralDirectory(view, endOffset) {
+      let entryCount = view.getUint16(endOffset + 10, true);
+      let centralOffset = view.getUint32(endOffset + 16, true);
+
+      if (entryCount !== 0xffff && centralOffset !== 0xffffffff) {
+        return { entryCount, centralOffset };
+      }
+
+      const locatorOffset = endOffset - 20;
+      if (locatorOffset < 0 || view.getUint32(locatorOffset, true) !== 0x07064b50) {
+        throw new Error("Les archives ZIP64 ne peuvent pas être lues : répertoire central introuvable.");
+      }
+
+      const zip64EndOffset = readZipUint64(view, locatorOffset + 8, "Le répertoire central ZIP64");
+      if (view.getUint32(zip64EndOffset, true) !== 0x06064b50) {
+        throw new Error("La structure ZIP64 du fichier est invalide.");
+      }
+
+      entryCount = readZipUint64(view, zip64EndOffset + 32, "Le nombre de fichiers du ZIP");
+      centralOffset = readZipUint64(view, zip64EndOffset + 48, "Le répertoire central ZIP64");
+      return { entryCount, centralOffset };
+    }
+
     async function inflateZipEntry(compressedData) {
       if (typeof DecompressionStream === "undefined") {
         throw new Error("Ce navigateur ne peut pas décompresser les fichiers ZIP. Utilisez un navigateur récent ou importez le CSV directement.");
@@ -854,25 +935,23 @@
         throw new Error("Le fichier ZIP est invalide ou endommagé.");
       }
 
-      const entryCount = view.getUint16(endOffset + 10, true);
-      let centralOffset = view.getUint32(endOffset + 16, true);
-      if (entryCount === 0xffff || centralOffset === 0xffffffff) {
-        throw new Error("Les archives ZIP au format ZIP64 ne sont pas prises en charge.");
-      }
+      const { entryCount, centralOffset: firstCentralOffset } =
+        findZipCentralDirectory(view, endOffset);
+      let centralOffset = firstCentralOffset;
 
       for (let entryIndex = 0; entryIndex < entryCount; entryIndex += 1) {
-        if (view.getUint32(centralOffset, true) !== 0x02014b50) {
+        if (centralOffset + 46 > bytes.length || view.getUint32(centralOffset, true) !== 0x02014b50) {
           throw new Error("La structure du fichier ZIP est invalide.");
         }
 
         const flags = view.getUint16(centralOffset + 8, true);
         const compressionMethod = view.getUint16(centralOffset + 10, true);
-        const compressedSize = view.getUint32(centralOffset + 20, true);
-        const uncompressedSize = view.getUint32(centralOffset + 24, true);
+        let compressedSize = view.getUint32(centralOffset + 20, true);
+        let uncompressedSize = view.getUint32(centralOffset + 24, true);
         const filenameLength = view.getUint16(centralOffset + 28, true);
         const extraLength = view.getUint16(centralOffset + 30, true);
         const entryCommentLength = view.getUint16(centralOffset + 32, true);
-        const localHeaderOffset = view.getUint32(centralOffset + 42, true);
+        let localHeaderOffset = view.getUint32(centralOffset + 42, true);
         const filenameBytes = bytes.subarray(
           centralOffset + 46,
           centralOffset + 46 + filenameLength
@@ -886,19 +965,57 @@
           if (flags & 0x0001) {
             throw new Error("Le fichier CSV dans le ZIP est chiffré et ne peut pas être lu.");
           }
-          if (compressedSize === 0xffffffff || uncompressedSize === 0xffffffff || localHeaderOffset === 0xffffffff) {
-            throw new Error("Ce fichier ZIP utilise un format non pris en charge.");
+          const neededZip64Values = {
+            uncompressedSize: uncompressedSize === 0xffffffff,
+            compressedSize: compressedSize === 0xffffffff,
+            localHeaderOffset: localHeaderOffset === 0xffffffff
+          };
+          const hasZip64Values = Object.values(neededZip64Values).some(Boolean);
+
+          if (hasZip64Values) {
+            const zip64Values = readZip64ExtraValues(
+              view,
+              centralOffset + 46 + filenameLength,
+              extraLength,
+              neededZip64Values
+            );
+
+            if (neededZip64Values.uncompressedSize) {
+              if (zip64Values.uncompressedSize === undefined) {
+                throw new Error("La taille ZIP64 du fichier CSV est introuvable.");
+              }
+              uncompressedSize = zip64Values.uncompressedSize;
+            }
+            if (neededZip64Values.compressedSize) {
+              if (zip64Values.compressedSize === undefined) {
+                throw new Error("La taille compressée ZIP64 du fichier CSV est introuvable.");
+              }
+              compressedSize = zip64Values.compressedSize;
+            }
+            if (neededZip64Values.localHeaderOffset) {
+              if (zip64Values.localHeaderOffset === undefined) {
+                throw new Error("La position ZIP64 du fichier CSV est introuvable.");
+              }
+              localHeaderOffset = zip64Values.localHeaderOffset;
+            }
           }
+
           if (uncompressedSize > 100 * 1024 * 1024) {
             throw new Error("Le fichier CSV extrait du ZIP dépasse la limite de 100 Mo.");
           }
-          if (view.getUint32(localHeaderOffset, true) !== 0x04034b50) {
+          if (
+            localHeaderOffset + 30 > bytes.length ||
+            view.getUint32(localHeaderOffset, true) !== 0x04034b50
+          ) {
             throw new Error("Impossible de lire le fichier CSV dans le ZIP.");
           }
 
           const localFilenameLength = view.getUint16(localHeaderOffset + 26, true);
           const localExtraLength = view.getUint16(localHeaderOffset + 28, true);
           const dataOffset = localHeaderOffset + 30 + localFilenameLength + localExtraLength;
+          if (dataOffset + compressedSize > bytes.length) {
+            throw new Error("Le fichier CSV dans le ZIP est incomplet ou endommagé.");
+          }
           const compressedData = bytes.subarray(dataOffset, dataOffset + compressedSize);
           let csvBuffer;
 
