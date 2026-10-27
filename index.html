@@ -706,7 +706,7 @@
       id: ["id", "id ticket", "ticket id", "numero de ticket", "numero ticket", "no ticket", "n ticket"],
       status: ["statut", "statut du ticket", "status", "ticket status", "etat", "etat du ticket"],
       sla: ["sla", "date sla", "sla date"],
-      created: ["cree", "date de creation", "date creation", "created", "created at", "creation", "date created"],
+      created: ["cree", "date de creation", "date creation", "created", "created at", "creation", "date created", "requested", "requested at", "opened", "opened at", "date requested"],
       updated: ["mis a jour", "mise a jour", "date maj", "date de creation maj", "date de mise a jour", "derniere mise a jour", "updated", "updated at", "last updated"],
       carrier: ["carrier pl bo only", "carrier plbo only", "carrier", "transporteur", "nom transporteur", "code transporteur"]
     };
@@ -1311,7 +1311,8 @@
           : cleanCell(sourceRow[indexes.carrier]);
         const missingSla = slaRaw === "";
         const slaDate = missingSla ? null : parseDate(slaRaw);
-        const isNewTicket = normalizeText(status) === "nouveau";
+        const normalizedStatus = normalizeText(status);
+        const isNewTicket = normalizedStatus === "nouveau" || normalizedStatus === "new";
 
         let finalDateValue;
         let finalTimestamp = Number.MAX_SAFE_INTEGER;
