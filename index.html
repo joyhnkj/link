@@ -812,7 +812,7 @@
 
     function updateClock() {
       const now = new Date();
-      const mdgTime = new Date(now.getTime() + 60 * 60 * 1000);
+      const mdgTime = new Date(now.getTime() + 2 * 60 * 60 * 1000);
       elements.currentTimeFr.textContent = frClockFormatter.format(now);
       elements.currentTimeMdg.textContent = mdgClockFormatter.format(mdgTime);
       elements.currentTimeFr.title = now.toLocaleString("fr-FR", {
