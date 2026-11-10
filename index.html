@@ -62,12 +62,20 @@
     }
 
     .eyebrow {
-      margin: 0 0 8px;
+      margin: 0 0 6px;
       color: var(--blue);
-      font-size: 0.75rem;
+      font-size: 1rem;
       font-weight: 800;
-      letter-spacing: 0.13em;
-      text-transform: uppercase;
+      letter-spacing: normal;
+      text-transform: none;
+    }
+
+    .group-selection-count {
+      margin: 0 0 8px;
+      color: #000000;
+      font-size: 0.86rem;
+      font-weight: 800;
+      letter-spacing: normal;
     }
 
     h1,
@@ -218,10 +226,209 @@
       transform: translateY(1px);
     }
 
+    .toolbar-actions {
+      display: flex;
+      width: 260px;
+      flex: 0 0 auto;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toolbar-actions .copy-button {
+      width: 100%;
+    }
+
+    .filter-control {
+      position: relative;
+    }
+
+    .filter-button {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      min-height: 52px;
+      gap: 10px;
+      padding: 7px 12px;
+      color: #344054;
+      background: #fff;
+      border: 1px solid #d0d5dd;
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .filter-button:hover,
+    .filter-button[aria-expanded="true"] {
+      background: #f8fafc;
+      border-color: #98a2b3;
+    }
+
+    .filter-button[aria-expanded="true"] {
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .filter-icon {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      flex: 0 0 30px;
+      place-items: center;
+      color: var(--blue);
+      background: #eaf1ff;
+      border-radius: 8px;
+    }
+
+    .filter-icon svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .filter-copy {
+      display: grid;
+      min-width: 0;
+      flex: 1 1 auto;
+      gap: 1px;
+    }
+
+    .filter-caption {
+      color: var(--muted);
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .filter-label {
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 0.82rem;
+      font-weight: 750;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .filter-chevron {
+      flex: 0 0 auto;
+      color: var(--muted);
+      transition: transform 150ms ease;
+    }
+
+    .filter-button[aria-expanded="true"] .filter-chevron {
+      transform: rotate(180deg);
+    }
+
+    .filter-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: max(100%, 300px);
+      max-width: calc(100vw - 32px);
+      max-height: 330px;
+      overflow: auto;
+      padding: 6px;
+      background: #fff;
+      border: 1px solid #d0d5dd;
+      border-radius: 12px;
+      box-shadow: 0 20px 45px rgba(16, 24, 40, 0.18);
+      z-index: 20;
+    }
+
+    .filter-menu-heading {
+      padding: 6px 9px 8px;
+      color: var(--muted);
+      font-size: 0.64rem;
+      font-weight: 800;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 10px;
+      color: #344054;
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      text-align: left;
+    }
+
+    .filter-option:hover {
+      background: #f1f6ff;
+    }
+
+    .filter-option[aria-selected="true"] {
+      color: var(--blue-dark);
+      background: #eff4ff;
+      font-weight: 750;
+    }
+
+    .filter-option-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .filter-option-count {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-variant-numeric: tabular-nums;
+    }
+
     .copy-button:focus-visible,
-    .drop-zone:focus-visible {
+    .drop-zone:focus-visible,
+    .filter-button:focus-visible,
+    .filter-option:focus-visible {
       outline: 3px solid rgba(37, 99, 235, 0.25);
       outline-offset: 3px;
+    }
+
+    .age-filter {
+      display: flex;
+      align-items: center;
+      min-height: 42px;
+      gap: 9px;
+      padding: 0 12px;
+      color: #344054;
+      background: #fff;
+      border: 1px solid #d0d5dd;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 700;
+      user-select: none;
+      transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+    }
+
+    .age-filter:hover {
+      background: #f8fafc;
+      border-color: #98a2b3;
+    }
+
+    .age-filter.is-active {
+      color: var(--blue-dark);
+      background: #eff4ff;
+      border-color: var(--blue);
+    }
+
+    .age-filter input {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 auto;
+      margin: 0;
+      accent-color: var(--blue);
+      cursor: pointer;
+    }
+
+    .age-filter input:focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.25);
+      outline-offset: 2px;
     }
 
     button:disabled {
@@ -244,7 +451,7 @@
       align-items: center;
       padding: 8px 18px;
       color: #344054;
-      background: #fafbfc;
+      background: #eef1f5;
       border: 2px dashed #cbd5e1;
       cursor: pointer;
       text-align: left;
@@ -405,7 +612,6 @@
 
     .table-card {
       margin-top: 24px;
-      overflow: hidden;
     }
 
     .table-toolbar {
@@ -447,6 +653,7 @@
     .table-wrap {
       max-height: 68vh;
       overflow: auto;
+      border-radius: 0 0 17px 17px;
     }
 
     table {
@@ -585,6 +792,10 @@
         text-align: right;
       }
 
+      .toolbar-actions {
+        width: 100%;
+      }
+
       .copy-button {
         width: 100%;
       }
@@ -671,15 +882,39 @@
       <div class="table-toolbar">
         <div>
           <p class="eyebrow" id="resultHeading">Résultat final</p>
+          <p class="group-selection-count" id="groupSelectionCount" hidden></p>
           <div class="result-details" id="resultDetails" aria-live="polite"></div>
         </div>
-        <button class="copy-button" id="copyButton" type="button">
-          <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
-            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
-          </svg>
-          <span id="copyButtonText">Copier le tableau</span>
-        </button>
+        <div class="toolbar-actions">
+          <label class="age-filter" id="ageFilter">
+            <input id="olderThan30Checkbox" type="checkbox">
+            <span>Tickets + de 30 jours</span>
+          </label>
+          <div class="filter-control" id="groupFilterControl" hidden>
+            <button class="filter-button" id="groupFilterButton" type="button" aria-haspopup="listbox" aria-expanded="false" aria-controls="groupFilterMenu">
+              <span class="filter-icon" aria-hidden="true">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 5h16l-6 7v5l-4 2v-7z"></path>
+                </svg>
+              </span>
+              <span class="filter-copy">
+                <span class="filter-caption">Filtrer par groupe</span>
+                <span class="filter-label" id="groupFilterLabel">Tous les groupes</span>
+              </span>
+              <svg class="filter-chevron" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6"></path>
+              </svg>
+            </button>
+            <div class="filter-menu" id="groupFilterMenu" role="listbox" aria-label="Sélectionner un groupe de tickets" hidden></div>
+          </div>
+          <button class="copy-button" id="copyButton" type="button">
+            <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+              <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+            </svg>
+            <span id="copyButtonText">Copier le tableau</span>
+          </button>
+        </div>
       </div>
 
       <div class="table-wrap" tabindex="0" aria-label="Tableau final, défilement horizontal et vertical">
@@ -689,8 +924,8 @@
             <tr>
               <th scope="col">ID</th>
               <th scope="col">Statut du ticket</th>
-              <th scope="col">Mis à jour</th>
-              <th scope="col">Carrier - PL BO ONLY</th>
+              <th scope="col" id="dateColumnHeader">Mis à jour</th>
+              <th scope="col" id="extraColumnHeader">Carrier - PL BO ONLY</th>
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -708,8 +943,12 @@
       sla: ["sla", "date sla", "sla date"],
       created: ["cree", "date de creation", "date creation", "created", "created at", "creation", "date created", "requested", "requested at", "opened", "opened at", "date requested"],
       updated: ["mis a jour", "mise a jour", "date maj", "date de creation maj", "date de mise a jour", "derniere mise a jour", "updated", "updated at", "last updated"],
-      carrier: ["carrier pl bo only", "carrier plbo only", "carrier", "transporteur", "nom transporteur", "code transporteur"]
+      carrier: ["carrier pl bo only", "carrier plbo only", "carrier", "transporteur", "nom transporteur", "code transporteur"],
+      group: ["groupe", "group", "equipe", "team", "file d attente", "queue"]
     };
+
+    const INCLUDED_STATUSES = new Set(["ouvert", "open", "nouveau", "nouvelle", "new"]);
+    const ALL_GROUPS = "__all__";
 
     const elements = {
       currentTimeMdg: document.getElementById("currentTimeMdg"),
@@ -723,7 +962,16 @@
       message: document.getElementById("message"),
       tableCard: document.getElementById("tableCard"),
       resultHeading: document.getElementById("resultHeading"),
+      groupSelectionCount: document.getElementById("groupSelectionCount"),
       resultDetails: document.getElementById("resultDetails"),
+      groupFilterControl: document.getElementById("groupFilterControl"),
+      groupFilterButton: document.getElementById("groupFilterButton"),
+      groupFilterLabel: document.getElementById("groupFilterLabel"),
+      groupFilterMenu: document.getElementById("groupFilterMenu"),
+      ageFilter: document.getElementById("ageFilter"),
+      olderThan30Checkbox: document.getElementById("olderThan30Checkbox"),
+      dateColumnHeader: document.getElementById("dateColumnHeader"),
+      extraColumnHeader: document.getElementById("extraColumnHeader"),
       copyButton: document.getElementById("copyButton"),
       copyButtonText: document.getElementById("copyButtonText"),
       tableBody: document.getElementById("tableBody")
@@ -732,6 +980,11 @@
     const state = {
       group: "",
       rows: [],
+      allRows: [],
+      selectedGroup: ALL_GROUPS,
+      olderThan30: false,
+      isGlobalView: false,
+      importHeading: "",
       warnings: []
     };
 
@@ -784,6 +1037,10 @@
 
     function getGroupFromFilename(filename) {
       return findKnownGroupInFilename(filename) || getFilenameWords(filename)[0] || "SANS GROUPE";
+    }
+
+    function getGlobalViewGroupName(filename) {
+      return normalizeText(filename).includes("bl global") ? "BL Global" : "";
     }
 
     function formatFileSize(bytes) {
@@ -1269,6 +1526,37 @@
       return date.getTime();
     }
 
+    function getThirtyDayCutoffStart() {
+      const cutoff = new Date();
+      cutoff.setHours(0, 0, 0, 0);
+      cutoff.setDate(cutoff.getDate() - 30);
+      return cutoff.getTime();
+    }
+
+    function isTicketOlderThan30(item) {
+      const createdDay = getCalendarDayTimestamp(item.createdTimestamp);
+      return createdDay !== Number.MAX_SAFE_INTEGER &&
+        createdDay <= getThirtyDayCutoffStart();
+    }
+
+    function getStatusFilteredRows(rows) {
+      if (state.isGlobalView && state.olderThan30) return rows;
+      return rows.filter((item) => INCLUDED_STATUSES.has(normalizeText(item.status)));
+    }
+
+    function getAgeFilteredRows(rows) {
+      const statusRows = getStatusFilteredRows(rows);
+      return state.olderThan30 ? statusRows.filter(isTicketOlderThan30) : statusRows;
+    }
+
+    function getDisplayedDate(item) {
+      return state.olderThan30 ? item.createdRaw : item.updated;
+    }
+
+    function getExtraColumnValue(item) {
+      return state.isGlobalView ? item.group : item.carrier;
+    }
+
     function processCsv(text) {
       const delimiter = detectDelimiter(text);
       const allRows = parseCsv(text, delimiter);
@@ -1303,16 +1591,23 @@
         if (!id) continue;
 
         const status = cleanCell(sourceRow[indexes.status]);
+        const normalizedStatus = normalizeText(status);
+
         const slaRaw = cleanCell(sourceRow[indexes.sla]);
         const createdRaw = cleanCell(sourceRow[indexes.created]);
         const updatedRaw = cleanCell(sourceRow[indexes.updated]);
         const carrier = indexes.carrier === -1
           ? ""
           : cleanCell(sourceRow[indexes.carrier]);
+        const ticketGroup = indexes.group === -1
+          ? ""
+          : cleanCell(sourceRow[indexes.group]);
+        const createdDate = parseDate(createdRaw);
         const missingSla = slaRaw === "";
         const slaDate = missingSla ? null : parseDate(slaRaw);
-        const normalizedStatus = normalizeText(status);
-        const isNewTicket = normalizedStatus === "nouveau" || normalizedStatus === "new";
+        const isNewTicket = normalizedStatus === "nouveau" ||
+          normalizedStatus === "nouvelle" ||
+          normalizedStatus === "new";
 
         let finalDateValue;
         let finalTimestamp = Number.MAX_SAFE_INTEGER;
@@ -1327,7 +1622,6 @@
             finalTimestamp = calculatedDate.getTime();
           }
         } else if (isNewTicket) {
-          const createdDate = parseDate(createdRaw);
           finalDateValue = createdDate ? formatDate(createdDate) : createdRaw;
           if (createdDate) finalTimestamp = createdDate.getTime();
         } else {
@@ -1344,7 +1638,10 @@
           id,
           status,
           updated: finalDateValue,
+          createdRaw,
+          createdTimestamp: createdDate ? createdDate.getTime() : Number.MAX_SAFE_INTEGER,
           carrier,
+          group: ticketGroup,
           missingSla,
           finalTimestamp
         });
@@ -1406,6 +1703,16 @@
     }
 
     function renderResultDetails(nowTimestamp = Date.now(), todayStart = getTodayStart()) {
+      if (state.olderThan30) {
+        const count = state.rows.length;
+        const line = document.createElement("p");
+        line.className = "result-line";
+        line.textContent =
+          `${count} ${count === 1 ? "ticket créé" : "tickets créés"} il y a 30 jours ou plus`;
+        elements.resultDetails.replaceChildren(line);
+        return;
+      }
+
       let redCount = 0;
       const orangeDates = new Map();
 
@@ -1460,24 +1767,182 @@
 
       for (const item of state.rows) {
         const row = document.createElement("tr");
-        if (item.missingSla) row.className = "sla-missing";
+        if (!state.olderThan30 && item.missingSla) row.className = "sla-missing";
 
         appendCell(row, item.id);
         appendCell(row, item.status);
         appendCell(
           row,
-          item.updated,
-          getMisAJourColorClass(item, nowTimestamp, todayStart)
+          getDisplayedDate(item),
+          state.olderThan30
+            ? ""
+            : getMisAJourColorClass(item, nowTimestamp, todayStart)
         );
-        appendCell(row, item.carrier);
+        appendCell(row, getExtraColumnValue(item));
         fragment.appendChild(row);
       }
 
       elements.tableBody.appendChild(fragment);
       renderResultDetails(nowTimestamp, todayStart);
+      renderGroupSelectionCount();
+    }
+
+    function renderGroupSelectionCount() {
+      if (!state.isGlobalView || state.selectedGroup === ALL_GROUPS) {
+        elements.groupSelectionCount.hidden = true;
+        elements.groupSelectionCount.textContent = "";
+        return;
+      }
+
+      const count = state.rows.length;
+      const groupLabel = getGroupLabel(state.selectedGroup);
+      elements.groupSelectionCount.textContent =
+        `${count} ${count === 1 ? "ticket" : "tickets"} dans le groupe « ${groupLabel} »`;
+      elements.groupSelectionCount.hidden = false;
+    }
+
+    function getGroupLabel(group) {
+      return group || "Sans groupe";
+    }
+
+    function getGroupFilterEntries() {
+      const counts = new Map();
+
+      for (const item of getAgeFilteredRows(state.allRows)) {
+        const group = item.group || "";
+        counts.set(group, (counts.get(group) || 0) + 1);
+      }
+
+      return [...counts.entries()]
+        .sort(([leftGroup], [rightGroup]) => {
+          if (leftGroup === rightGroup) return 0;
+          if (leftGroup === "") return 1;
+          if (rightGroup === "") return -1;
+          return leftGroup.localeCompare(rightGroup, "fr", { sensitivity: "base" });
+        })
+        .map(([value, count]) => ({
+          value,
+          count,
+          label: getGroupLabel(value)
+        }));
+    }
+
+    function createGroupFilterOption(value, label, count) {
+      const option = document.createElement("button");
+      option.type = "button";
+      option.className = "filter-option";
+      option.setAttribute("role", "option");
+      option.dataset.group = value;
+      option.setAttribute("aria-selected", String(state.selectedGroup === value));
+
+      const optionLabel = document.createElement("span");
+      optionLabel.className = "filter-option-name";
+      optionLabel.textContent = label;
+
+      const optionCount = document.createElement("span");
+      optionCount.className = "filter-option-count";
+      optionCount.textContent = String(count);
+
+      option.append(optionLabel, optionCount);
+      return option;
+    }
+
+    function updateGroupFilterLabel() {
+      elements.groupFilterLabel.textContent = state.selectedGroup === ALL_GROUPS
+        ? "Tous les groupes"
+        : getGroupLabel(state.selectedGroup);
+      elements.groupFilterButton.title = elements.groupFilterLabel.textContent;
+    }
+
+    function closeGroupFilterMenu() {
+      elements.groupFilterMenu.hidden = true;
+      elements.groupFilterButton.setAttribute("aria-expanded", "false");
+    }
+
+    function renderGroupFilter() {
+      const entries = getGroupFilterEntries();
+      const hasNamedGroups = entries.some((entry) => entry.value !== "");
+      closeGroupFilterMenu();
+      elements.groupFilterControl.hidden = !hasNamedGroups;
+      elements.groupFilterMenu.replaceChildren();
+      updateGroupFilterLabel();
+
+      if (!hasNamedGroups) return;
+
+      const allCount = entries.reduce((total, entry) => total + entry.count, 0);
+      const allOption = createGroupFilterOption(
+        ALL_GROUPS,
+        "Tous les groupes",
+        allCount
+      );
+      elements.groupFilterMenu.appendChild(allOption);
+
+      for (const entry of entries) {
+        elements.groupFilterMenu.appendChild(
+          createGroupFilterOption(entry.value, entry.label, entry.count)
+        );
+      }
+    }
+
+    function reconcileSelectedGroup() {
+      if (state.selectedGroup === ALL_GROUPS) return;
+
+      const rows = getAgeFilteredRows(state.allRows);
+      const stillAvailable = rows.some(
+        (item) => (item.group || "") === state.selectedGroup
+      );
+      if (!stillAvailable) state.selectedGroup = ALL_GROUPS;
+    }
+
+    function applyViewFilters() {
+      reconcileSelectedGroup();
+      let rows = getAgeFilteredRows(state.allRows).slice();
+
+      if (state.selectedGroup !== ALL_GROUPS) {
+        rows = rows.filter((item) => (item.group || "") === state.selectedGroup);
+      }
+
+      if (state.olderThan30) {
+        rows.sort((left, right) => {
+          const dateDifference = left.createdTimestamp - right.createdTimestamp;
+          if (dateDifference !== 0) return dateDifference;
+          return left.id.localeCompare(right.id, "fr", { numeric: true });
+        });
+      }
+
+      state.rows = rows;
+      elements.dateColumnHeader.textContent = state.olderThan30
+        ? "Création"
+        : "Mis à jour";
+      elements.extraColumnHeader.textContent = state.isGlobalView
+        ? "Groupe"
+        : "Carrier - PL BO ONLY";
+
+      if (state.importHeading) {
+        elements.resultHeading.textContent = state.importHeading;
+      }
+      renderTable();
+    }
+
+    function selectGroupFilter(value) {
+      state.selectedGroup = value;
+      renderGroupFilter();
+      applyViewFilters();
+      elements.groupFilterButton.focus();
+    }
+
+    function openGroupFilterMenu(focusLast = false) {
+      if (elements.groupFilterControl.hidden) return;
+      elements.groupFilterMenu.hidden = false;
+      elements.groupFilterButton.setAttribute("aria-expanded", "true");
+      const options = [...elements.groupFilterMenu.querySelectorAll(".filter-option")];
+      const selected = elements.groupFilterMenu.querySelector('[aria-selected="true"]');
+      const target = selected || (focusLast ? options[options.length - 1] : options[0]);
+      target?.focus();
     }
 
     function refreshMisAJourColors() {
+      if (state.olderThan30) return;
       const renderedRows = elements.tableBody.children;
       if (renderedRows.length === 0) return;
       const nowTimestamp = Date.now();
@@ -1533,8 +1998,18 @@
         const sourceGroup = sourceFile === file
           ? ""
           : findKnownGroupInFilename(sourceFile.name);
-        state.group = uploadedGroup || sourceGroup || getGroupFromFilename(sourceFile.name);
-        state.rows = result.rows;
+        const globalGroup = getGlobalViewGroupName(file.name) ||
+          getGlobalViewGroupName(sourceFile.name);
+        state.group = globalGroup || uploadedGroup || sourceGroup ||
+          getGroupFromFilename(sourceFile.name);
+        state.isGlobalView = Boolean(globalGroup);
+        state.allRows = result.rows;
+        state.rows = result.rows.slice();
+        state.selectedGroup = ALL_GROUPS;
+        state.olderThan30 = false;
+        const importedTicketCount = getStatusFilteredRows(result.rows).length;
+        state.importHeading =
+          `${importedTicketCount} tickets importés et traités depuis le CSV « ${sourceFile.name} »`;
         state.warnings = result.warnings;
 
         elements.groupName.textContent = state.group;
@@ -1548,10 +2023,12 @@
         elements.fileMeta.hidden = false;
         elements.copyButton.disabled = false;
         elements.tableCard.hidden = false;
+        elements.copyButtonText.textContent = "Copier le tableau";
+        elements.olderThan30Checkbox.checked = false;
+        elements.ageFilter.classList.remove("is-active");
 
-        renderTable();
-        elements.resultHeading.textContent =
-          `${result.rows.length} tickets importés et traités depuis le CSV « ${sourceFile.name} »`;
+        renderGroupFilter();
+        applyViewFilters();
         elements.message.textContent = "";
         elements.message.hidden = true;
         if (state.warnings.length > 0) {
@@ -1569,6 +2046,7 @@
     }
 
     function shouldIncludeCarrierInCopy() {
+      if (state.isGlobalView) return state.olderThan30;
       return state.rows.some((item) => cleanCell(item.carrier) !== "");
     }
 
@@ -1576,9 +2054,10 @@
       const lines = [];
       const includeCarrier = shouldIncludeCarrierInCopy();
       for (const item of state.rows) {
+        const displayedDate = getDisplayedDate(item);
         const values = includeCarrier
-          ? [item.id, item.status, item.updated, item.carrier]
-          : [item.id, item.status, item.updated];
+          ? [item.id, item.status, displayedDate, getExtraColumnValue(item)]
+          : [item.id, item.status, displayedDate];
         const safeValues = values.map((value) =>
           String(value).replace(/[\t\r\n]+/g, " ").trimEnd()
         );
@@ -1610,13 +2089,14 @@
       const todayStart = getTodayStart();
       for (const item of state.rows) {
         const row = document.createElement("tr");
+        const displayedDate = getDisplayedDate(item);
         const values = includeCarrier
-          ? [item.id, item.status, item.updated, item.carrier]
-          : [item.id, item.status, item.updated];
+          ? [item.id, item.status, displayedDate, getExtraColumnValue(item)]
+          : [item.id, item.status, displayedDate];
 
         values.forEach((value, columnIndex) => {
           const cell = document.createElement("td");
-          const dateColorClass = columnIndex === 2
+          const dateColorClass = !state.olderThan30 && columnIndex === 2
             ? getMisAJourColorClass(item, nowTimestamp, todayStart)
             : "";
           const isRedDate = dateColorClass === "past-white-date";
@@ -1625,7 +2105,7 @@
             ? "#ff1f1f"
             : isOrangeDate
               ? "#f97316"
-              : item.missingSla
+              : !state.olderThan30 && item.missingSla
                 ? "#fff0e6"
                 : "#ffffff";
           const textColor = isRedDate || isOrangeDate ? "#ffffff" : "#172033";
@@ -1748,6 +2228,74 @@
 
     elements.dropZone.addEventListener("click", () => elements.fileInput.click());
     elements.copyButton.addEventListener("click", copyTable);
+
+    elements.groupFilterButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (elements.groupFilterMenu.hidden) {
+        openGroupFilterMenu();
+      } else {
+        closeGroupFilterMenu();
+      }
+    });
+
+    elements.groupFilterButton.addEventListener("keydown", (event) => {
+      if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+      event.preventDefault();
+      if (elements.groupFilterMenu.hidden) {
+        openGroupFilterMenu(event.key === "ArrowUp");
+      }
+    });
+
+    elements.groupFilterMenu.addEventListener("click", (event) => {
+      const option = event.target.closest(".filter-option");
+      if (!option) return;
+      selectGroupFilter(option.dataset.group || "");
+    });
+
+    elements.olderThan30Checkbox.addEventListener("change", () => {
+      state.olderThan30 = elements.olderThan30Checkbox.checked;
+      elements.ageFilter.classList.toggle("is-active", state.olderThan30);
+      reconcileSelectedGroup();
+      renderGroupFilter();
+      applyViewFilters();
+    });
+
+    elements.groupFilterMenu.addEventListener("keydown", (event) => {
+      if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      const options = [...elements.groupFilterMenu.querySelectorAll(".filter-option")];
+      if (options.length === 0) return;
+      const currentIndex = options.indexOf(document.activeElement);
+      let nextIndex = currentIndex;
+
+      if (event.key === "Home") {
+        nextIndex = 0;
+      } else if (event.key === "End") {
+        nextIndex = options.length - 1;
+      } else if (event.key === "ArrowDown") {
+        nextIndex = Math.min(options.length - 1, currentIndex + 1);
+      } else {
+        nextIndex = Math.max(0, currentIndex - 1);
+      }
+
+      options[nextIndex].focus();
+    });
+
+    document.addEventListener("click", (event) => {
+      if (
+        !elements.groupFilterMenu.hidden &&
+        !elements.groupFilterControl.contains(event.target)
+      ) {
+        closeGroupFilterMenu();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !elements.groupFilterMenu.hidden) {
+        closeGroupFilterMenu();
+        elements.groupFilterButton.focus();
+      }
+    });
 
     elements.fileInput.addEventListener("change", (event) => {
       const [file] = event.target.files;
