@@ -469,6 +469,17 @@
       transform: scale(1.005);
     }
 
+    .drop-zone.is-imported {
+      background: #e7f6ec;
+      border-color: #86dfa4;
+    }
+
+    .drop-zone.is-imported:hover,
+    .drop-zone.is-imported.is-dragging {
+      background: #d9f0e1;
+      border-color: #34a85a;
+    }
+
     .drop-content {
       display: flex;
       align-items: center;
@@ -1978,6 +1989,7 @@
         return;
       }
 
+      elements.dropZone.classList.remove("is-imported");
       setBusy(true);
       try {
         let sourceFile = file;
@@ -2022,6 +2034,7 @@
           ? `Archive : ${formatFileSize(file.size)} · CSV interne : ${formatFileSize(sourceFile.size)}`
           : formatFileSize(file.size);
         elements.fileMeta.hidden = false;
+        elements.dropZone.classList.add("is-imported");
         elements.copyButton.disabled = false;
         elements.tableCard.hidden = false;
         elements.copyButtonText.textContent = "Copier le tableau";
